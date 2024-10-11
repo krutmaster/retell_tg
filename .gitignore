@@ -1,0 +1,11 @@
+secret.py
+test.py
+.*
+!.gitignore
+_*
+venv
+docker-compose_postgre.yml
+exceptions.py
+opentfd_session.session
+docker_client_llama
+docker_server
