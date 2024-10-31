@@ -1,0 +1,13 @@
+services:
+  app:
+    container_name: retell_tg  # Название контейнера
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./data:/app/data
+    ports:
+      - "8000:8000"
+    restart: always  # Политика перезапуска контейнера
+    command: >
+      sh -c "python demon.py & python tg_bot.py"

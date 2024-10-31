@@ -1,0 +1,31 @@
+services:
+  ollama:
+    container_name: ollama
+    image: ollama/ollama
+    volumes:
+      - ./ollama:/root/.ollama
+    ports:
+      - "11434:11434"
+    networks:
+      - llama_network
+    restart: always
+
+  app:
+    container_name: client_llama
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./data:/app/data
+    ports:
+      - "8000:8000"
+    restart: always
+    networks:
+      - llama_network
+    depends_on:
+      - ollama
+    command: >
+      sh -c "python client_llama.py"
+
+networks:
+  llama_network:
