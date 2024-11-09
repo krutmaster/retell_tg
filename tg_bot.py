@@ -26,14 +26,34 @@ async def get_answered_text():
     return False
 
 
-async def update_dialog_from_bot(id_dialog: int, last_msg_id: int):
-    # Подключаемся к базе данных
+async def answer_update_dialog(id_dialog: int, last_msg_id: int):
     conn = connect_to_db()
-    # Открываем курсор для выполнения операций с БД
     cursor = conn.cursor()
     query = "update dialog set last_msg_id = %s where id = %s"
     params = (last_msg_id, id_dialog,)
     execute_query(conn, cursor, query, params)
+
+
+async def user_update_dialog(last_msg_id: int, user_text: str):
+    conn = connect_to_db()
+    cursor = conn.cursor()
+    query = "select id, history from dialog where last_msg_id = %s"
+    params = (last_msg_id,)
+    res = execute_query(conn, cursor, query, params)
+    if res:
+        id_dialog = res[0][0]
+        dialog_history = res[0][1]
+        dialog_history = eval(dialog_history)
+        dialog_history.append({
+            "role": "user",
+            "content": user_text,
+        })
+        dialog_history = str(dialog_history)
+        conn = connect_to_db()
+        cursor = conn.cursor()
+        query = "update dialog set is_answered = %s, history = %s, last_msg_id = %s where id = %s"
+        params = ('false', dialog_history, -1, id_dialog,)
+        execute_query(conn, cursor, query, params)
 
 
 async def send_answered_text(chat_id: int):
@@ -50,7 +70,22 @@ async def send_answered_text(chat_id: int):
         sent_message = await bot.send_message(chat_id=chat_id, text=text_to_send)
 
         # Обновляем диалог на основе ID отправленного сообщения
-        await update_dialog_from_bot(id_dialog, sent_message.message_id)
+        await answer_update_dialog(id_dialog, sent_message.message_id)
+
+
+@dp.message()
+async def handle_user_message(message: types.Message):
+    # Проверяем, является ли сообщение ответом на другое сообщение
+    if message.reply_to_message and message.reply_to_message.from_user.id == bot.id:
+        # Если это ответ на сообщение бота, сохраняем ID сообщения и текст
+        last_msg_id = message.reply_to_message.message_id
+        user_text = message.text
+
+        # Вызываем функцию user_update_dialog с сохраненными значениями
+        await user_update_dialog(last_msg_id, user_text)
+    else:
+        # Если сообщение не является ответом на сообщение бота
+        await message.reply("Пожалуйста, ответьте на сообщение бота, чтобы продолжить.")
 
 
 async def periodic_task(chat_id: int):
@@ -84,8 +119,6 @@ async def clear_db():
 
 
 async def main():
-    # Регистрация хэндлеров
-    # dp.message.register(send_welcome, Command(commands=["start"]))
     asyncio.create_task(periodic_task(538231919))
     asyncio.create_task(clear_db())
 
