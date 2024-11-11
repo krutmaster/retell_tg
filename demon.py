@@ -63,7 +63,7 @@ async def switch_merger(event: custom.Message):
         await event.edit(f'`Merger for this chat {status}`')
 
 
-def format_message(message):
+async def format_message(message):
     sender = message.sender.first_name
     if message.sender.last_name:
         sender += f" {message.sender.last_name}"
@@ -72,7 +72,7 @@ def format_message(message):
     return f"[СООБЩЕНИЕ] {sender}: {text}\n"
 
 
-def add_text_to_db(text):
+async def add_text_to_db(text):
     # Подключаемся к базе данных
     conn = connect_to_db()
     # Открываем курсор для выполнения операций с БД
@@ -108,11 +108,11 @@ async def collect_msg_for_retell(event):
     # Проходим по сообщениям, проверяя наличие текста
     for msg in messages:
         if msg.text or (msg.media and msg.message):
-            for_retell_text.append(format_message(msg))
+            for_retell_text.append(await format_message(msg))
 
     # Если есть собранные сообщения, отправляем их пользователю
     if for_retell_text:
-        add_text_to_db(for_retell_text)
+        await add_text_to_db(for_retell_text)
         print('Text was added')
     else:
         print("Не найдено сообщений с текстом после ответа.")
