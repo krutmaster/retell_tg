@@ -56,6 +56,26 @@ async def user_update_dialog(last_msg_id: int, user_text: str):
         execute_query(conn, cursor, query, params)
 
 
+async def split_text_to_chunks(text, max_length=4095):
+    # Инициализируем пустой список для хранения отрывков текста
+    chunks = []
+
+    # Разделяем текст по длине max_length
+    while len(text) > max_length:
+        # Находим последнее место для разреза по пробелу в пределах max_length
+        split_index = text[:max_length].rfind(" ")
+        if split_index == -1:  # если пробела нет, режем точно по max_length
+            split_index = max_length
+
+        # Добавляем часть текста в список и обрезаем исходный текст
+        chunks.append(text[:split_index])
+        text = text[split_index:].lstrip()  # убираем лишние пробелы слева у оставшегося текста
+
+    # Добавляем оставшийся текст как последний отрывок
+    chunks.append(text)
+    return chunks
+
+
 async def send_answered_text(chat_id: int):
     """
     Функция отправки сообщения и вызова обновления диалога.
@@ -63,11 +83,18 @@ async def send_answered_text(chat_id: int):
     # Получаем текст для отправки
     res_query = await get_answered_text()
     if res_query is not False:
-        text_to_send = res_query[0]
         id_dialog = res_query[1]
+        text_to_send = res_query[0]
 
-        # Отправляем текст пользователю
-        sent_message = await bot.send_message(chat_id=chat_id, text=text_to_send)
+        if len(text_to_send) > 4095:
+            text_to_send_chunks = await split_text_to_chunks(text_to_send)
+            for text_to_send in text_to_send_chunks:
+                await asyncio.sleep(3)
+                sent_message = await bot.send_message(chat_id=chat_id, text=text_to_send)
+        else:
+
+            # Отправляем текст пользователю
+            sent_message = await bot.send_message(chat_id=chat_id, text=text_to_send)
 
         # Обновляем диалог на основе ID отправленного сообщения
         await answer_update_dialog(id_dialog, sent_message.message_id)
