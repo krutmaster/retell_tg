@@ -70,6 +70,8 @@ async def format_message(message):
             sender = message.forward.sender.first_name
             if message.forward.sender.last_name:
                 sender += f" {message.forward.sender.last_name}"
+        elif message.fwd_from.from_name:  # Переслано от заприваченного пользователя
+            sender = message.fwd_from.from_name
         elif message.forward.channel_post:  # Переслано из канала
             sender = f'Канал "{message.forward.chat.title}"'
     else:
