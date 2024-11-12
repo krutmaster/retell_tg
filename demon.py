@@ -64,9 +64,19 @@ async def switch_merger(event: custom.Message):
 
 
 async def format_message(message):
-    sender = message.sender.first_name
-    if message.sender.last_name:
-        sender += f" {message.sender.last_name}"
+    if message.fwd_from:
+        # Проверка на тип изначального отправителя
+        if message.forward.sender:  # Переслано от пользователя
+            sender = message.forward.sender.first_name
+            if message.forward.sender.last_name:
+                sender += f" {message.forward.sender.last_name}"
+        elif message.forward.channel_post:  # Переслано из канала
+            sender = f"Канал: {message.forward.chat.title}"
+    else:
+        # Если сообщение не переслано, используем текущего отправителя
+        sender = message.sender.first_name
+        if message.sender.last_name:
+            sender += f" {message.sender.last_name}"
 
     text = message.message
     return f"[СООБЩЕНИЕ] {sender}: {text}\n"
