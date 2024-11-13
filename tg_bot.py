@@ -3,6 +3,8 @@ from aiogram import Bot, Dispatcher, types
 from db import connect_to_db, execute_query
 from aiogram.filters import Command
 from secret import API_TOKEN
+from json import dumps as json_dumps
+from json import loads as json_loads
 
 
 # Инициализация бота и диспетчера
@@ -20,8 +22,8 @@ async def get_answered_text():
     res = execute_query(conn, cursor, query, params)
     if res:
         id_dialog = res[0][0]
-        res = eval(res[0][1])[-1]
-        res = res['content']
+        res = json_loads(res[0][1])
+        res = res[-1]['content']
         return [res, id_dialog]
     return False
 
@@ -43,12 +45,12 @@ async def user_update_dialog(last_msg_id: int, user_text: str):
     if res:
         id_dialog = res[0][0]
         dialog_history = res[0][1]
-        dialog_history = eval(dialog_history)
+        dialog_history = json_loads(dialog_history)
         dialog_history.append({
             "role": "user",
             "content": user_text,
         })
-        dialog_history = str(dialog_history)
+        dialog_history = json_dumps(dialog_history)
         conn = connect_to_db()
         cursor = conn.cursor()
         query = "update dialog set is_answered = %s, history = %s, last_msg_id = %s where id = %s"

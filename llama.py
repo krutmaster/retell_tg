@@ -40,4 +40,4 @@ def request_to_lamma(dialog_history, is_initiation=True):
         "content": response_content,
     })
 
-    return response_content, dialog_history
+    return dialog_history
