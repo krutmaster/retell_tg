@@ -95,7 +95,7 @@ async def add_text_to_db(text):
 
 
 # Обработка команды !retell только для исходящих сообщений (отправленных самим пользователем)
-@client.on(events.NewMessage(outgoing=True, pattern='!retell'))
+@client.on(events.NewMessage(outgoing=True, pattern='!retell|!куеудд|! Retell'))
 async def collect_msg_for_retell(event):
     # Проверка, что сообщение с командой является ответом на другое сообщение
     if not event.is_reply:
