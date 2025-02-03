@@ -26,8 +26,8 @@ def request_to_lamma(dialog_history, start_prompt=None, is_initiation=True):
         model="deepseek-r1:8b",
         messages=dialog_history,
         # temperature=0.3,
-        # top_p=0.8,
-        # frequency_penalty=0.3
+        top_p=0.8,
+        frequency_penalty=0.3
     )
 
     # Извлекаем содержимое ответа модели
