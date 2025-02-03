@@ -93,7 +93,7 @@ def convert_to_quote(match):
     text_lines = inner_text.splitlines()
     quoted_text = f"**>{text_lines[0]}\n"
     quoted_text += "\n".join([">" + line for line in text_lines[1:]])
-    return quoted_text  # Без экранирования – оно будет позже
+    return quoted_text
 
 
 async def send_answered_text(chat_id: int):

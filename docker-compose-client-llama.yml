@@ -14,7 +14,7 @@ services:
     container_name: client_llama
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile_client_llama
     volumes:
       - ./data:/app/data
     ports:

@@ -3,7 +3,7 @@ services:
     container_name: retell_tg  # Название контейнера
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile_server
     volumes:
       - ./data:/app/data
     ports:

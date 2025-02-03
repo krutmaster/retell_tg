@@ -11,4 +11,4 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Копируем все остальные файлы проекта в контейнер
-COPY . .
+COPY client_llama.py db.py llama.py requirements.txt secret.py .
