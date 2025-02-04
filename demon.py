@@ -1,14 +1,17 @@
 import asyncio
-from datetime import timedelta
+# from datetime import timedelta
 from time import time, sleep
 from contextlib import suppress
-
 from telethon import TelegramClient, events, sync, errors, custom
 from db import connect_to_db, execute_query
 import exceptions
-from secret import api_id, api_hash
+import os
+from dotenv import load_dotenv
 
 
+load_dotenv()
+api_id = int(os.getenv('api_id'))
+api_hash = os.getenv('api_hash')
 client = TelegramClient('opentfd_session', api_id, api_hash, system_version="4.16.30-vxCUSTOM").start()
 last_msg = None
 last_msg_time = None

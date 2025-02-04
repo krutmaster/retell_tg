@@ -1,9 +1,16 @@
 import psycopg2
-from psycopg2 import sql
-from secret import dbname, user, password, host, port
+import os
+from dotenv import load_dotenv
 
 
-# Функция для подключения к базе данных
+load_dotenv()
+dbname = os.getenv('dbname')
+user = os.getenv('user')
+password = os.getenv('password')
+host = os.getenv('host')
+port = os.getenv('port')
+
+
 def connect_to_db():
     # Параметры подключения к базе данных
     conn = psycopg2.connect(
@@ -16,21 +23,17 @@ def connect_to_db():
     return conn
 
 
-# Функция для выполнения SQL-запроса
 def execute_query(conn, cursor, query, params=None):
     try:
-        # Выполняем SQL-запрос
         if params:
             cursor.execute(query, params)
         else:
             cursor.execute(query)
 
-        # Если это SELECT-запрос, то возвращаем результат
         if query.strip().lower().startswith('select'):
             result = cursor.fetchall()
             return result
 
-        # Фиксируем изменения (для запросов INSERT/UPDATE/DELETE)
         conn.commit()
         return True
 
@@ -39,6 +42,5 @@ def execute_query(conn, cursor, query, params=None):
         return None
 
     finally:
-        # Закрываем курсор и соединение
         cursor.close()
         conn.close()

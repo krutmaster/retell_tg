@@ -1,14 +1,17 @@
 import asyncio
 from aiogram import Bot, Dispatcher, types
 from db import connect_to_db, execute_query
-from aiogram.filters import Command
-from secret import API_TOKEN
+# from aiogram.filters import Command
 from json import dumps as json_dumps
 from json import loads as json_loads
 import re
+import os
+from dotenv import load_dotenv
 
 
-bot = Bot(token=API_TOKEN)
+load_dotenv()
+bot_token = os.getenv('bot_token')
+bot = Bot(token=bot_token)
 dp = Dispatcher()
 think_pattern = r"<think>(.*?)</think>"  # For DeepSeek thinking
 

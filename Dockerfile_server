@@ -11,4 +11,4 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Копируем все остальные файлы проекта в контейнер
-COPY db.py demon.py exceptions.py opentfd_session.session requirements.txt secret.py tg_bot.py .
+COPY db.py demon.py exceptions.py opentfd_session.session requirements.txt .env tg_bot.py .

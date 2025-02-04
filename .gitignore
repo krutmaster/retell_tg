@@ -1,4 +1,3 @@
-secret.py
 test.py
 .*
 !.gitignore
