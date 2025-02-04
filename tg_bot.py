@@ -84,6 +84,7 @@ def escape_md_v2_custom(text: str) -> str:
     """
     Экранирует текст для MarkdownV2, но оставляет нужные символы форматирования (*, _, > и т.д.)
     """
+    text = text.replace('#', '')
     escape_chars = r'([]()~`+=|{}.!-)'
     return re.sub(r'(?<!\\)([' + re.escape(escape_chars) + r'])', r'\\\1', text)
 
