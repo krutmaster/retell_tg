@@ -58,6 +58,9 @@ async def user_update_dialog(last_msg_id: int, user_text: str):
         query = "update dialog set is_answered = %s, history = %s, last_msg_id = %s where id = %s"
         params = ('false', dialog_history, -1, id_dialog,)
         execute_query(conn, cursor, query, params)
+        return True
+    else:
+        return False
 
 
 async def split_text_to_chunks(text, max_length=4095):
@@ -134,22 +137,22 @@ async def send_answered_text(chat_id: int):
 
 @dp.message()
 async def handle_user_message(message: types.Message):
-    # Проверяем, является ли сообщение ответом на другое сообщение
+    """
+    Передача уточнений пользователя в продолжаемый диалог
+    """
     if message.reply_to_message and message.reply_to_message.from_user.id == bot.id:
-        # Если это ответ на сообщение бота, сохраняем ID сообщения и текст
         last_msg_id = message.reply_to_message.message_id
         user_text = message.text
-
-        # Вызываем функцию user_update_dialog с сохраненными значениями
-        await user_update_dialog(last_msg_id, user_text)
+        status = await user_update_dialog(last_msg_id, user_text)
+        if not status:
+            await message.reply('Данной переписки больше нет в БД')
     else:
-        # Если сообщение не является ответом на сообщение бота
-        await message.reply("Пожалуйста, ответьте на сообщение бота, чтобы продолжить.")
+        await message.reply("Пожалуйста, ответьте на сообщение бота, чтобы продолжить")
 
 
 async def periodic_task(chat_id: int):
     """
-    Функция для запуска периодической отправки сообщений.
+    Запуск периодической отправки сообщений
     """
     while True:
         await send_answered_text(chat_id)
@@ -158,7 +161,7 @@ async def periodic_task(chat_id: int):
 
 async def clear_db():
     """
-    Функция для запуска периодической отправки сообщений.
+    Очистка бд от нетронутых диалогов в течении 3-х дней
     """
     while True:
         conn = connect_to_db()
