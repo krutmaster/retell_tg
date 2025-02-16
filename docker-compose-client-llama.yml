@@ -9,6 +9,13 @@ services:
     networks:
       - llama_network
     restart: always
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
 
   app:
     container_name: client_llama
