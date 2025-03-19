@@ -9,3 +9,4 @@ opentfd_session.session
 docker_client_llama
 docker_server
 /docker_client_llama.lnk
+*.log
