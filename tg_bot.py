@@ -110,27 +110,28 @@ async def send_answered_text(chat_id: int):
     res_query = await get_answered_text()
     if res_query is not False:
         id_dialog = res_query[1]
-        text_to_send = res_query[0]
-        text_to_send = re.sub(think_pattern, convert_to_quote, text_to_send, flags=re.DOTALL)
+        text_to_send_orig = res_query[0]
+        text_to_send = re.sub(think_pattern, convert_to_quote, text_to_send_orig, flags=re.DOTALL)
         text_to_send = escape_md_v2_custom(text_to_send)
 
         if len(text_to_send) > 4094:
             text_to_send_chunks = await split_text_to_chunks(text_to_send)
-            for chunk in text_to_send_chunks:
+            text_to_send_chunks_orig = await split_text_to_chunks(text_to_send_orig)
+            for i, chunk in enumerate(text_to_send_chunks):
                 await asyncio.sleep(3)
                 try:  # Обработчики на случай, если MdV2 даст ошибку экранирования
                     sent_message = await bot.send_message(chat_id=chat_id, text=chunk, parse_mode='MarkdownV2')
                 except Exception as e:
                     await bot.send_message(chat_id=chat_id, text=f'Ошибка при отправке с парсингом, попытка отправить без парсинга:\n{e}')
                     await asyncio.sleep(3)
-                    sent_message = await bot.send_message(chat_id=chat_id, text=chunk)
+                    sent_message = await bot.send_message(chat_id=chat_id, text=text_to_send_chunks_orig[i])
         else:
             try:  # Обработчики на случай, если MdV2 даст ошибку экранирования
                 sent_message = await bot.send_message(chat_id=chat_id, text=text_to_send, parse_mode='MarkdownV2')
             except Exception as e:
                 await bot.send_message(chat_id=chat_id, text=f'Ошибка при отправке с парсингом, попытка отправить без парсинга:\n{e}')
                 await asyncio.sleep(3)
-                sent_message = await bot.send_message(chat_id=chat_id, text=text_to_send)
+                sent_message = await bot.send_message(chat_id=chat_id, text=text_to_send_orig)
 
         await answer_update_dialog(id_dialog, sent_message.message_id)
 
